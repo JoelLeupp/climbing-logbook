@@ -23,7 +23,7 @@ const app = new Hono<AppEnv>();
 app.use(
   "*",
   cors({
-    origin: process.env.WEB_ORIGIN ?? "http://localhost:4200",
+    origin: process.env.WEB_ORIGIN ?? "http://localhost:5173",
     credentials: true,
   }),
 );
