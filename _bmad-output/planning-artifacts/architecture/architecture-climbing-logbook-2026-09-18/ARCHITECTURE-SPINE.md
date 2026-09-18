@@ -185,9 +185,9 @@ graph LR
 | @hono/node-server | ^1.13.0 (one major behind current 2.1.1 — unverified against the Hono bump above, not proven broken; re-check when AD-5 lands) |
 | @hono/zod-openapi | ~1.6.x |
 | @hono/swagger-ui | latest (unpinned at authoring) |
-| drizzle-orm | ^0.36.0 |
-| drizzle-kit | ^0.28.0 (behind current 0.31.10 — unverified, not proven broken; pre-existing pin, not changed by this session) |
-| drizzle-zod | 0.8.1+ (confirmed compatible with drizzle-orm ^0.36.0 and Zod v4) |
+| drizzle-orm | ^0.44.5 (bumped from ^0.36.0 during Story 1.3 — `drizzle-zod@0.8.3` calls `getViewSelectedFields`, which `drizzle-orm@0.36.4` does not export despite drizzle-zod's own `>=0.36.0` peer-range claim; verified via a real runtime crash, not just a type-check; regression-checked against `packages/db`/`apps/api`, no breakage) |
+| drizzle-kit | ^0.28.0 (unaffected by the drizzle-orm bump — `drizzle-kit generate` re-verified clean against the new version; still behind current 0.31.10, unverified beyond that) |
+| drizzle-zod | 0.8.1+ (requires drizzle-orm ^0.44.5+ in practice — see drizzle-orm row; Zod v4 support confirmed) |
 | postgres (postgres.js driver) | ^3.4.4 |
 | Postgres (database) | 18 (docker-compose `postgres:18`) |
 | SvelteKit | 2 |

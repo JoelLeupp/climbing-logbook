@@ -4,3 +4,6 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-1-frontend-scaffold.md`
   summary: No lint/format tooling (prettier/eslint equivalent) is configured for the new SvelteKit apps/web stack.
   evidence: The old Angular app's .prettierrc/.editorconfig were deleted as part of the framework replacement; nothing SvelteKit-specific was added. Not blocking (shadcn-svelte's own generated files carry their own style regardless), but worth a deliberate decision before the codebase grows across Epics 2-6.
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-3-shared-contracts-package.md`
+  summary: How packages/db and packages/contracts (raw TypeScript, no build step) actually get consumed by a production `node dist/index.js` process (per AD-17) is unresolved.
+  evidence: Plain Node's native ESM loader cannot resolve packages/contracts's `.js`-suffixed relative imports (e.g. index.ts -> entities.js) to their real `.ts` siblings the way `tsx` does in dev - confirmed by direct reproduction. Belongs to Epic 6/Story 6.1 (containerized deployment); the actual production consumption mechanism (tsx-in-prod, a build step, or something else) hasn't been decided.
