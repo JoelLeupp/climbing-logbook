@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db, users, hashPassword, verifyPassword } from "@climbing-logbook/db";
 import type { AppEnv } from "../context.js";
 import { SESSION_COOKIE, createSession, deleteSession } from "../lib/session.js";
+import { sendProblem } from "../lib/problem-details.js";
 
 const auth = new Hono<AppEnv>();
 
@@ -24,12 +25,15 @@ auth.post("/register", async (c) => {
   const password = String(body.password ?? "");
 
   if (!email || !name || password.length < 8) {
-    return c.json({ error: "email, name, and a password of at least 8 characters are required" }, 400);
+    return sendProblem(c, {
+      status: 400,
+      detail: "email, name, and a password of at least 8 characters are required",
+    });
   }
 
   const [existing] = await db.select().from(users).where(eq(users.email, email));
   if (existing) {
-    return c.json({ error: "An account with this email already exists" }, 409);
+    return sendProblem(c, { status: 409, detail: "An account with this email already exists" });
   }
 
   const [user] = await db
@@ -49,7 +53,7 @@ auth.post("/login", async (c) => {
 
   const [user] = await db.select().from(users).where(eq(users.email, email));
   if (!user || !verifyPassword(password, user.passwordHash)) {
-    return c.json({ error: "Invalid email or password" }, 401);
+    return sendProblem(c, { status: 401, detail: "Invalid email or password" });
   }
 
   const { token, expiresAt } = await createSession(user.id);

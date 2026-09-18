@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, climbingAreas } from "@climbing-logbook/db";
 import type { AppEnv } from "../context.js";
 import { requireAuth } from "../middleware/auth.js";
+import { sendProblem } from "../lib/problem-details.js";
 
 const areas = new Hono<AppEnv>();
 
@@ -13,14 +14,14 @@ areas.get("/", async (c) => {
 
 areas.get("/:id", async (c) => {
   const [area] = await db.select().from(climbingAreas).where(eq(climbingAreas.id, c.req.param("id")));
-  if (!area) return c.json({ error: "Area not found" }, 404);
+  if (!area) return sendProblem(c, { status: 404, detail: "Area not found" });
   return c.json(area);
 });
 
 areas.post("/", requireAuth, async (c) => {
   const body = await c.req.json();
   if (!body.name || typeof body.latitude !== "number" || typeof body.longitude !== "number") {
-    return c.json({ error: "name, latitude, and longitude are required" }, 400);
+    return sendProblem(c, { status: 400, detail: "name, latitude, and longitude are required" });
   }
 
   const [area] = await db
@@ -56,13 +57,13 @@ areas.patch("/:id", requireAuth, async (c) => {
     .where(eq(climbingAreas.id, c.req.param("id")))
     .returning();
 
-  if (!area) return c.json({ error: "Area not found" }, 404);
+  if (!area) return sendProblem(c, { status: 404, detail: "Area not found" });
   return c.json(area);
 });
 
 areas.delete("/:id", requireAuth, async (c) => {
   const [area] = await db.delete(climbingAreas).where(eq(climbingAreas.id, c.req.param("id"))).returning();
-  if (!area) return c.json({ error: "Area not found" }, 404);
+  if (!area) return sendProblem(c, { status: 404, detail: "Area not found" });
   return c.body(null, 204);
 });
 

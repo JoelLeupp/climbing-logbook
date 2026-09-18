@@ -11,8 +11,11 @@
   "dependencies": {
     "@climbing-logbook/db": "*",
     "@hono/node-server": "^1.13.0",
+    "@hono/swagger-ui": "^0.6.1",
+    "@hono/zod-openapi": "^1.6.3",
     "drizzle-orm": "^0.36.0",
-    "hono": "^4.6.0"
+    "hono": "^4.10.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

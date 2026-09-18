@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, sectors as sectorsTable } from "@climbing-logbook/db";
 import type { AppEnv } from "../context.js";
 import { requireAuth } from "../middleware/auth.js";
+import { sendProblem } from "../lib/problem-details.js";
 
 const sectors = new Hono<AppEnv>();
 
@@ -16,14 +17,14 @@ sectors.get("/", async (c) => {
 
 sectors.get("/:id", async (c) => {
   const [sector] = await db.select().from(sectorsTable).where(eq(sectorsTable.id, c.req.param("id")));
-  if (!sector) return c.json({ error: "Sector not found" }, 404);
+  if (!sector) return sendProblem(c, { status: 404, detail: "Sector not found" });
   return c.json(sector);
 });
 
 sectors.post("/", requireAuth, async (c) => {
   const body = await c.req.json();
   if (!body.areaId || !body.name) {
-    return c.json({ error: "areaId and name are required" }, 400);
+    return sendProblem(c, { status: 400, detail: "areaId and name are required" });
   }
 
   const [sector] = await db
@@ -58,13 +59,13 @@ sectors.patch("/:id", requireAuth, async (c) => {
     .where(eq(sectorsTable.id, c.req.param("id")))
     .returning();
 
-  if (!sector) return c.json({ error: "Sector not found" }, 404);
+  if (!sector) return sendProblem(c, { status: 404, detail: "Sector not found" });
   return c.json(sector);
 });
 
 sectors.delete("/:id", requireAuth, async (c) => {
   const [sector] = await db.delete(sectorsTable).where(eq(sectorsTable.id, c.req.param("id"))).returning();
-  if (!sector) return c.json({ error: "Sector not found" }, 404);
+  if (!sector) return sendProblem(c, { status: 404, detail: "Sector not found" });
   return c.body(null, 204);
 });
 

@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db, climbs as climbsTable, climbTags, tags as tagsTable } from "@climbing-logbook/db";
 import type { AppEnv } from "../context.js";
 import { requireAuth } from "../middleware/auth.js";
+import { sendProblem } from "../lib/problem-details.js";
 
 const climbs = new Hono<AppEnv>();
 
@@ -16,7 +17,7 @@ climbs.get("/", async (c) => {
 
 climbs.get("/:id", async (c) => {
   const [climb] = await db.select().from(climbsTable).where(eq(climbsTable.id, c.req.param("id")));
-  if (!climb) return c.json({ error: "Climb not found" }, 404);
+  if (!climb) return sendProblem(c, { status: 404, detail: "Climb not found" });
 
   const climbTagRows = await db
     .select({ id: tagsTable.id, name: tagsTable.name })
@@ -30,7 +31,7 @@ climbs.get("/:id", async (c) => {
 climbs.post("/", requireAuth, async (c) => {
   const body = await c.req.json();
   if (!body.sectorId || !body.name || !body.kind) {
-    return c.json({ error: "sectorId, name, and kind are required" }, 400);
+    return sendProblem(c, { status: 400, detail: "sectorId, name, and kind are required" });
   }
 
   const [climb] = await db
@@ -63,20 +64,20 @@ climbs.patch("/:id", requireAuth, async (c) => {
     .where(eq(climbsTable.id, c.req.param("id")))
     .returning();
 
-  if (!climb) return c.json({ error: "Climb not found" }, 404);
+  if (!climb) return sendProblem(c, { status: 404, detail: "Climb not found" });
   return c.json(climb);
 });
 
 climbs.delete("/:id", requireAuth, async (c) => {
   const [climb] = await db.delete(climbsTable).where(eq(climbsTable.id, c.req.param("id"))).returning();
-  if (!climb) return c.json({ error: "Climb not found" }, 404);
+  if (!climb) return sendProblem(c, { status: 404, detail: "Climb not found" });
   return c.body(null, 204);
 });
 
 // Tag assignment lives here (not in routes/tags.ts) since it's climb-scoped.
 climbs.post("/:id/tags", requireAuth, async (c) => {
   const body = await c.req.json();
-  if (!body.tagId) return c.json({ error: "tagId is required" }, 400);
+  if (!body.tagId) return sendProblem(c, { status: 400, detail: "tagId is required" });
 
   await db.insert(climbTags).values({ climbId: c.req.param("id"), tagId: body.tagId }).onConflictDoNothing();
   return c.body(null, 204);
