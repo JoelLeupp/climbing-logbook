@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.svelte-kit/
+.env
+*.local
+
+apps/api/uploads/
+!apps/api/uploads/.gitkeep
+
+*.log
+.DS_Store
+.idea/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/

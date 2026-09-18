@@ -26,26 +26,36 @@ or dealing with a community database you don't need.
 
 ## Tech stack
 
-- **Frontend:** [SvelteKit](https://kit.svelte.dev/) + [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn-svelte](https://www.shadcn-svelte.com/) + [Leaflet](https://leafletjs.com/)
-- **Backend:** [Hono](https://hono.dev/) on the [Bun](https://bun.sh/) runtime
-- **Database:** PostgreSQL + [PostGIS](https://postgis.net/), via [Drizzle ORM](https://orm.drizzle.team/)
-- **Media storage:** local disk / [MinIO](https://min.io/) (S3-compatible)
+- **Frontend:** [Angular 22](https://angular.dev/) (standalone components, Signal Forms) +
+  [spartan/ui](https://www.spartan.ng/) + [Tailwind CSS v4](https://tailwindcss.com/) + [Leaflet](https://leafletjs.com/)
+- **Backend:** [Hono](https://hono.dev/) on Node.js (`@hono/node-server`)
+- **Database:** PostgreSQL, via [Drizzle ORM](https://orm.drizzle.team/) (area/sector locations are
+  plain lat/lng columns for now — see `packages/db/src/schema.ts`; the Postgres image ships with
+  PostGIS so geometry columns can be added later without a new container)
+- **Media storage:** local disk for now; MinIO (S3-compatible) runs in Docker Compose for when the
+  storage layer grows into it
+- **Auth:** hand-rolled email/password + session cookie, hashed with Node's built-in `crypto.scrypt`
+  — no auth library needed for a handful of users
+- **Package manager:** npm workspaces (monorepo)
 - **Infra:** Docker Compose for local development
 
 ## Status
 
-🚧 Early development — data model and core CRUD flows are being built out. Not yet ready for
-general use.
+🚧 Early development — first working draft of the full stack (schema, API, frontend shell) is in
+place. Not yet ready for general use.
 
 ## Getting started
 
 ```bash
 git clone https://github.com/<your-username>/climbing-logbook.git
 cd climbing-logbook
-bun install
-docker compose up -d      # starts Postgres+PostGIS and MinIO
-bun run db:migrate
-bun run dev
+npm install
+docker compose up -d       # starts Postgres and MinIO
+cp env.example .env
+npm run db:migrate
+npm run db:seed             # optional demo data
+npm run dev:api             # terminal 1
+npm run dev:web             # terminal 2
 ```
 
 ## License

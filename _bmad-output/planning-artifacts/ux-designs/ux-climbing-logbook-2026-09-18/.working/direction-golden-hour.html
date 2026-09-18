@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Climbing Logbook — Direction: Golden Hour</title>
+<style>
+/*
+  DIRECTION: Golden Hour
+  Register: warm, photographic, social-but-personal — built around the fact that a
+  trip logbook for friends is mostly about the photos and videos from that one perfect
+  send at 6pm. Text sits on top of images with a warm scrim; thumbnails scatter like
+  photos pulled from a phone gallery rather than lining up in a grid.
+
+  PALETTE
+  --bg:      #FFF8F1  page background, warm paper
+  --card:    #FFFFFF  panel surface
+  --ink:     #3A2A20  primary text, warm umber
+  --ink-soft:#8A7566  secondary text
+  --sunset:  #E8763C  primary accent — Flash button, grade badge
+  --terra:   #C24E3A  secondary accent — Redpoint, pins
+  --gold:    #E3A857  highlight, toast glow
+  --scrim:   linear-gradient(to top, rgba(30,16,8,.85), rgba(30,16,8,0))  photo text scrim
+*/
+html,body{margin:0;padding:0;background:#F3E9DC;font-family:"Trebuchet MS",-apple-system,"Segoe UI",sans-serif;color:#3A2A20;}
+.rationale{max-width:1200px;margin:0 auto;padding:20px 24px 4px;font-size:13px;line-height:1.6;color:#8A7566;}
+.stage{display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;justify-content:center;padding:24px 24px 64px;max-width:1300px;margin:0 auto;}
+
+/* ---------- PHONE ---------- */
+.phone{width:375px;height:812px;background:#241811;border-radius:48px;padding:14px;box-shadow:0 30px 70px -20px rgba(60,30,10,.5);flex-shrink:0;}
+.screen{width:100%;height:100%;background:#FFF8F1;border-radius:36px;overflow:hidden;position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#241811;border-radius:0 0 16px 16px;z-index:5;}
+.statusbar{position:absolute;top:16px;left:24px;right:24px;display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#fff;z-index:4;}
+
+.hero{height:400px;position:relative;background:
+  radial-gradient(circle at 70% 20%, #F4C77E 0%, #EAA25A 22%, transparent 45%),
+  linear-gradient(165deg,#E8B876 0%,#D98A52 30%,#A9633F 60%,#5C3826 100%);}
+.hero::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(120deg, rgba(0,0,0,.05) 0 3px, transparent 3px 20px);}
+.scrim{position:absolute;left:0;right:0;bottom:0;height:220px;background:linear-gradient(to top, rgba(28,15,8,.88), rgba(28,15,8,0));}
+.herotext{position:absolute;left:22px;right:22px;bottom:18px;color:#fff;}
+.gradeline{display:flex;align-items:center;gap:10px;}
+.grade{background:#E8763C;color:#fff;font-size:15px;font-weight:700;padding:5px 12px;border-radius:20px;}
+.name{font-size:28px;font-weight:700;margin:10px 0 2px;line-height:1.1;text-shadow:0 2px 10px rgba(0,0,0,.3);}
+.meta{font-size:12.5px;color:#F3E0CC;}
+
+.chips{display:flex;gap:8px;padding:14px 22px 0;flex-wrap:wrap;}
+.chip{font-size:12px;padding:5px 12px;border-radius:20px;background:#FCEFE0;color:#C24E3A;}
+
+.thumbstrip{display:flex;padding:16px 26px 0;}
+.pola{width:64px;height:64px;background:#fff;padding:4px 4px 10px;box-shadow:0 6px 14px -6px rgba(60,30,10,.35);position:relative;}
+.pola .ph{width:100%;height:100%;}
+.pola.a{transform:rotate(-6deg);margin-right:-14px;z-index:1;}
+.pola.b{transform:rotate(4deg);margin-right:-14px;z-index:2;}
+.pola.c{transform:rotate(-2deg);z-index:3;}
+.ph1{background:linear-gradient(160deg,#E8B876,#A9633F);}
+.ph2{background:linear-gradient(160deg,#F0C98A,#8C5636);}
+.ph3{background:linear-gradient(150deg,#EABE87,#7A4A2E);}
+
+.desc{padding:22px 26px 0;font-size:13.5px;line-height:1.55;color:#5A4636;}
+
+.actions{position:absolute;bottom:34px;left:24px;right:24px;display:flex;gap:10px;}
+.btn{flex:1;text-align:center;padding:16px 0;border-radius:24px;font-size:16px;font-weight:700;}
+.btn.flash{background:linear-gradient(135deg,#F0A15C,#E8763C);color:#fff;box-shadow:0 10px 20px -8px rgba(232,118,60,.55);}
+.btn.redpoint{background:linear-gradient(135deg,#D9684D,#C24E3A);color:#fff;box-shadow:0 10px 20px -8px rgba(194,78,58,.5);}
+
+.toast{position:absolute;left:26px;right:26px;bottom:112px;background:#fff;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 20px 40px -12px rgba(60,30,10,.4);border:1px solid #F3E0CC;}
+.toast .badge{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#F4C77E,#E8763C);flex-shrink:0;box-shadow:0 0 0 4px #FCEFE0;}
+.toast .txt{font-size:13px;line-height:1.35;color:#3A2A20;}
+.toast .txt b{color:#C24E3A;}
+
+.home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:120px;height:4px;background:#fff;border-radius:3px;opacity:.6;z-index:5;}
+
+/* ---------- BROWSER ---------- */
+.browser{width:780px;background:#fff;border-radius:16px;box-shadow:0 30px 70px -20px rgba(60,30,10,.35);overflow:hidden;flex-shrink:0;}
+.chrome{background:#FCEFE0;padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #F3E0CC;}
+.dotr{width:10px;height:10px;border-radius:50%;}
+.dotr.a{background:#E8763C;}.dotr.b{background:#E3A857;}.dotr.c{background:#7EA083;}
+.url{margin-left:10px;background:#fff;border:1px solid #F3E0CC;border-radius:10px;font-size:11.5px;color:#8A7566;padding:5px 12px;flex:1;}
+
+.appwin{display:flex;height:500px;}
+.leftpanel{width:340px;border-right:1px solid #F3E0CC;overflow:hidden;display:flex;flex-direction:column;}
+.areahead{padding:18px 22px 10px;}
+.areahead h1{font-size:23px;margin:0;}
+.areahead p{margin:4px 0 0;font-size:12px;color:#8A7566;}
+.sector-label{font-size:11px;color:#E8763C;font-weight:700;padding:14px 22px 4px;}
+.routerow{display:flex;align-items:center;gap:10px;padding:8px 22px;}
+.rthumb{width:38px;height:38px;border-radius:10px;flex-shrink:0;}
+.rt1{background:linear-gradient(160deg,#E8B876,#A9633F);}
+.rt2{background:linear-gradient(160deg,#F0C98A,#8C5636);}
+.rt3{background:linear-gradient(150deg,#EABE87,#7A4A2E);}
+.rname{flex:1;font-size:13px;}
+.rgrade{font-size:12px;font-weight:700;color:#fff;background:#E8763C;padding:3px 9px;border-radius:12px;}
+.rstatus{font-size:10.5px;color:#7B9B6E;margin-left:6px;}
+.rstatus.proj{color:#C24E3A;}
+
+.mappanel{flex:1;position:relative;background:linear-gradient(160deg,#F4D9A8 0%,#E3A857 40%,#C97A48 75%,#8C5636 100%);}
+.pin{position:absolute;width:16px;height:16px;background:#C24E3A;border:2px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 3px 6px rgba(0,0,0,.3);}
+.pinlabel{position:absolute;font-size:11px;font-weight:700;color:#3A2A20;background:rgba(255,255,255,.9);padding:2px 8px;border-radius:8px;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="rationale">The photo IS the route: a full-bleed hero image with name and grade sitting on a warm scrim, scattered polaroid-style thumbnails, and a soft glowing toast — designed for friends who will mostly remember the trip through its photos and the golden light at send-time.</div>
+<div class="stage">
+
+  <div class="phone">
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="statusbar"><span>14:32</span><span>84%</span></div>
+      <div class="hero">
+        <div class="scrim"></div>
+        <div class="herotext">
+          <div class="gradeline"><span class="grade">6a+</span></div>
+          <div class="name">Fissure du Matin</div>
+          <div class="meta">Céüse · Berger</div>
+        </div>
+      </div>
+      <div class="chips"><span class="chip">overhang</span><span class="chip">crimpy</span></div>
+      <div class="thumbstrip">
+        <div class="pola a"><div class="ph ph1"></div></div>
+        <div class="pola b"><div class="ph ph2"></div></div>
+        <div class="pola c"><div class="ph ph3"></div></div>
+      </div>
+      <div class="desc">22m, 9 bolts. Sustained bulge into a crimpy, technical exit past the roof — best in the evening light.</div>
+      <div class="toast">
+        <div class="badge"></div>
+        <div class="txt"><b>Flashed 5 routes at 6a+</b> (+1)</div>
+      </div>
+      <div class="actions">
+        <div class="btn flash">Flash</div>
+        <div class="btn redpoint">Redpoint</div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="chrome">
+      <span class="dotr a"></span><span class="dotr b"></span><span class="dotr c"></span>
+      <div class="url">climbing-logbook.home/areas/ceuse</div>
+    </div>
+    <div class="appwin">
+      <div class="leftpanel">
+        <div class="areahead"><h1>Céüse</h1><p>3 sectors · 42 routes</p></div>
+
+        <div class="sector-label">Biographie</div>
+        <div class="routerow"><div class="rthumb rt1"></div><div class="rname">Biographie</div><span class="rgrade">8a</span></div>
+
+        <div class="sector-label">Face Nord</div>
+        <div class="routerow"><div class="rthumb rt2"></div><div class="rname">La Ravivée</div><span class="rgrade">7c+</span></div>
+        <div class="routerow"><div class="rthumb rt3"></div><div class="rname">Voie des Chèvres</div><span class="rgrade">5c</span></div>
+
+        <div class="sector-label">Berger</div>
+        <div class="routerow"><div class="rthumb rt1"></div><div class="rname">Le Toit du Berger</div><span class="rgrade">7b</span><span class="rstatus proj">project</span></div>
+        <div class="routerow"><div class="rthumb rt2"></div><div class="rname">Dalle Fantôme</div><span class="rgrade">6c</span></div>
+        <div class="routerow"><div class="rthumb rt3"></div><div class="rname">Fissure du Matin</div><span class="rgrade">6a+</span><span class="rstatus">flashed</span></div>
+      </div>
+      <div class="mappanel">
+        <div class="pin" style="top:60px;left:120px;"></div>
+        <div class="pinlabel" style="top:38px;left:104px;">Berger</div>
+        <div class="pin" style="top:150px;left:240px;"></div>
+        <div class="pinlabel" style="top:128px;left:212px;">Biographie</div>
+        <div class="pin" style="top:260px;left:90px;"></div>
+        <div class="pinlabel" style="top:238px;left:64px;">Face Nord</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

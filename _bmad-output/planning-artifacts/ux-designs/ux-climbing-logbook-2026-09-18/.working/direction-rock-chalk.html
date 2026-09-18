@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Climbing Logbook — Direction: Rock &amp; Chalk</title>
+<style>
+/*
+  DIRECTION: Rock & Chalk
+  Register: printed climbing guidebook / topo sheet — tactile, warm, paper-and-stone.
+  Rationale: a personal logbook shared with close friends should feel like the guidebook
+  you'd actually carry to the crag, not a generic app. Serif route names read like
+  topo captions; moss and clay are drawn from lichen and sandstone, not a UI accent wheel.
+
+  PALETTE
+  --bg:      #F2F1EC  page background, chalky limestone
+  --card:    #FFFFFF  photo/card surface
+  --ink:     #2A2E2B  primary text, wet-slate green-black
+  --ink-soft:#6E6A61  secondary text
+  --line:    #C9C3B6  hairline / borders, dried clay
+  --moss:    #3E5C42  primary accent — Flash, sent state
+  --moss-lt: #E7EDE7  moss tint background
+  --clay:    #A65A3C  secondary accent — grade badge, Redpoint
+  --clay-lt: #F3E4DC  clay tint background
+  --paper:   #EDE9E1  recessed panel (map, list bg)
+*/
+html,body{margin:0;padding:0;background:#DEDCD3;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#2A2E2B;}
+.rationale{max-width:1200px;margin:0 auto;padding:20px 24px 4px;font-size:13px;line-height:1.6;color:#5b5a53;font-style:italic;}
+.stage{display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;justify-content:center;padding:24px 24px 64px;max-width:1300px;margin:0 auto;}
+
+/* ---------- PHONE ---------- */
+.phone{width:375px;height:812px;background:#232620;border-radius:46px;padding:14px;box-shadow:0 30px 60px -20px rgba(30,28,22,.45);flex-shrink:0;}
+.screen{width:100%;height:100%;background:#F2F1EC;border-radius:34px;overflow:hidden;position:relative;font-size:15px;display:flex;flex-direction:column;}
+.spacer{flex:1;}
+.statusbar{display:flex;justify-content:space-between;padding:16px 24px 4px;font-size:13px;font-weight:600;color:#2A2E2B;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#232620;border-radius:0 0 16px 16px;}
+.appbar{display:flex;align-items:center;gap:8px;padding:10px 20px 6px;}
+.back{width:9px;height:9px;border-left:2px solid #6E6A61;border-bottom:2px solid #6E6A61;transform:rotate(45deg);}
+.crumb{font-size:12.5px;color:#6E6A61;letter-spacing:.2px;}
+.crumb b{color:#2A2E2B;font-weight:600;}
+
+.gallery{display:flex;gap:8px;padding:12px 20px 4px;}
+.photo{flex:1;height:118px;border-radius:14px;position:relative;overflow:hidden;box-shadow:0 6px 14px -8px rgba(0,0,0,.35);}
+.photo.p1{background:linear-gradient(155deg,#9C8E77 0%,#7C6E58 35%,#4E4A3C 75%,#332E24 100%);}
+.photo.p1::after{content:"";position:absolute;inset:0;background:
+  repeating-linear-gradient(115deg, rgba(0,0,0,.08) 0 3px, transparent 3px 14px);}
+.photo.p2{background:linear-gradient(160deg,#B9AE97 0%,#8B7F66 40%,#5C5443 80%,#3A362B 100%);}
+.photo.p2::after{content:"";position:absolute;inset:0;background:
+  repeating-linear-gradient(35deg, rgba(255,255,255,.06) 0 2px, transparent 2px 10px);}
+.photo .tag{position:absolute;bottom:6px;left:8px;font-size:10px;color:#fff;background:rgba(20,18,14,.55);padding:2px 7px;border-radius:8px;letter-spacing:.2px;}
+
+.titleblock{padding:16px 20px 4px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.name{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;font-size:25px;line-height:1.15;color:#242720;margin:0;}
+.grade{flex-shrink:0;background:#A65A3C;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:700;padding:7px 13px;border-radius:10px;box-shadow:0 4px 10px -4px rgba(166,90,60,.6);}
+
+.chips{display:flex;gap:8px;padding:10px 20px 2px;flex-wrap:wrap;}
+.chip{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid #3E5C42;color:#3E5C42;background:#E7EDE7;}
+
+.desc{padding:12px 20px 4px;font-size:13.5px;line-height:1.55;color:#5b5a53;}
+.desc b{color:#2A2E2B;}
+
+.actions{display:flex;gap:10px;padding:18px 20px 28px;}
+.btn{flex:1;text-align:center;padding:15px 0;border-radius:14px;font-size:16px;font-weight:600;letter-spacing:.2px;}
+.btn.flash{background:#3E5C42;color:#F2F1EC;box-shadow:0 8px 16px -8px rgba(62,92,66,.55);}
+.btn.redpoint{background:#fff;color:#A65A3C;border:1.5px solid #A65A3C;}
+
+.toast{position:absolute;left:20px;right:20px;bottom:112px;background:#242720;color:#F2F1EC;border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 16px 30px -10px rgba(0,0,0,.5);transform:rotate(-0.6deg);}
+.toast .dot{width:26px;height:26px;border-radius:50%;background:#3E5C42;flex-shrink:0;position:relative;}
+.toast .dot::after{content:"";position:absolute;left:9px;top:5px;width:7px;height:12px;border-right:2px solid #F2F1EC;border-bottom:2px solid #F2F1EC;transform:rotate(35deg);}
+.toast .txt{font-size:13px;line-height:1.35;}
+.toast .txt b{font-family:Georgia,serif;}
+
+.home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:120px;height:4px;background:#2A2E2B;border-radius:3px;opacity:.4;}
+
+/* ---------- BROWSER ---------- */
+.browser{width:760px;background:#fff;border-radius:14px;box-shadow:0 30px 60px -20px rgba(30,28,22,.35);overflow:hidden;flex-shrink:0;}
+.chrome{background:#E7E3D8;padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #C9C3B6;}
+.dotr{width:10px;height:10px;border-radius:50%;}
+.dotr.a{background:#D98366;}.dotr.b{background:#D9C266;}.dotr.c{background:#7EA083;}
+.url{margin-left:10px;background:#F2F1EC;border:1px solid #C9C3B6;border-radius:7px;font-size:11.5px;color:#6E6A61;padding:5px 12px;flex:1;}
+
+.appwin{display:flex;height:480px;}
+.leftpanel{width:340px;border-right:1px solid #C9C3B6;overflow:hidden;display:flex;flex-direction:column;background:#fff;}
+.areahead{padding:16px 18px 10px;border-bottom:1px solid #C9C3B6;}
+.areahead h1{font-family:Georgia,serif;font-size:22px;margin:0 0 2px;}
+.areahead p{margin:0;font-size:12px;color:#6E6A61;}
+.sector-label{font-size:11px;color:#A65A3C;letter-spacing:.3px;padding:12px 18px 4px;font-weight:600;}
+.routerow{display:flex;align-items:center;gap:10px;padding:8px 18px;border-bottom:1px solid #EFEDE6;}
+.rthumb{width:34px;height:34px;border-radius:8px;flex-shrink:0;}
+.rt1{background:linear-gradient(160deg,#9C8E77,#4E4A3C);}
+.rt2{background:linear-gradient(160deg,#B9AE97,#5C5443);}
+.rt3{background:linear-gradient(150deg,#A79B85,#635b48);}
+.rname{flex:1;font-size:13px;color:#242720;}
+.rgrade{font-family:Georgia,serif;font-size:12px;font-weight:700;color:#fff;background:#A65A3C;padding:2px 8px;border-radius:6px;}
+.rstatus{font-size:10.5px;color:#3E5C42;}
+.rstatus.proj{color:#A65A3C;}
+
+.mappanel{flex:1;position:relative;background:linear-gradient(150deg,#D8CBAA 0%,#B9A97E 45%,#8C9A73 75%,#6B7C56 100%);}
+.mappanel::before{content:"";position:absolute;inset:0;background:
+  repeating-linear-gradient(60deg, rgba(255,255,255,.05) 0 2px, transparent 2px 22px);}
+.pin{position:absolute;width:14px;height:14px;background:#A65A3C;border:2px solid #fff;border-radius:50%;box-shadow:0 3px 6px rgba(0,0,0,.3);}
+.pin.p2{background:#3E5C42;}
+.pinlabel{position:absolute;font-size:11px;font-weight:600;color:#242720;background:rgba(255,255,255,.85);padding:2px 7px;border-radius:6px;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="rationale">A logbook that feels like the guidebook you'd actually stuff in your chalk bag: serif route names, sandstone and lichen tones, and a slightly crooked paper toast — tactile rather than digital-slick, built for a small crew who already speak the vocabulary.</div>
+<div class="stage">
+
+  <div class="phone">
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="statusbar"><span>14:32</span><span>••• 5G 84%</span></div>
+      <div class="appbar"><span class="back"></span><span class="crumb">Céüse · <b>Berger</b></span></div>
+      <div class="gallery">
+        <div class="photo p1"><span class="tag">approach</span></div>
+        <div class="photo p2"><span class="tag">crux bulge</span></div>
+      </div>
+      <div class="titleblock">
+        <h1 class="name">Fissure du Matin</h1>
+        <div class="grade">6a+</div>
+      </div>
+      <div class="chips">
+        <div class="chip">overhang</div>
+        <div class="chip">crimpy</div>
+        <div class="chip">technical</div>
+      </div>
+      <div class="desc">22m · 9 bolts. <b>Sustained bulge</b> off the ledge into a crimpy, technical exit past the roof.</div>
+      <div class="spacer"></div>
+      <div class="actions">
+        <div class="btn flash">Flash</div>
+        <div class="btn redpoint">Redpoint</div>
+      </div>
+      <div class="toast">
+        <div class="dot"></div>
+        <div class="txt"><b>Flashed 5 routes at 6a+</b><br>(+1) — nice streak today</div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="chrome">
+      <span class="dotr a"></span><span class="dotr b"></span><span class="dotr c"></span>
+      <div class="url">climbing-logbook.home/areas/ceuse</div>
+    </div>
+    <div class="appwin">
+      <div class="leftpanel">
+        <div class="areahead"><h1>Céüse</h1><p>3 sectors · 42 routes</p></div>
+
+        <div class="sector-label">Biographie</div>
+        <div class="routerow"><div class="rthumb rt1"></div><div class="rname">Biographie</div><span class="rgrade">8a</span></div>
+
+        <div class="sector-label">Face Nord</div>
+        <div class="routerow"><div class="rthumb rt2"></div><div class="rname">La Ravivée</div><span class="rgrade">7c+</span></div>
+        <div class="routerow"><div class="rthumb rt3"></div><div class="rname">Voie des Chèvres</div><span class="rgrade">5c</span></div>
+
+        <div class="sector-label">Berger</div>
+        <div class="routerow"><div class="rthumb rt1"></div><div class="rname">Le Toit du Berger</div><span class="rgrade">7b</span><span class="rstatus proj">project</span></div>
+        <div class="routerow"><div class="rthumb rt2"></div><div class="rname">Dalle Fantôme</div><span class="rgrade">6c</span></div>
+        <div class="routerow"><div class="rthumb rt3"></div><div class="rname">Fissure du Matin</div><span class="rgrade">6a+</span><span class="rstatus">flashed ✓</span></div>
+      </div>
+      <div class="mappanel">
+        <div class="pin" style="top:60px;left:120px;"></div>
+        <div class="pinlabel" style="top:76px;left:112px;">Berger</div>
+        <div class="pin p2" style="top:150px;left:240px;"></div>
+        <div class="pinlabel" style="top:166px;left:222px;">Biographie</div>
+        <div class="pin" style="top:260px;left:90px;"></div>
+        <div class="pinlabel" style="top:276px;left:70px;">Face Nord</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

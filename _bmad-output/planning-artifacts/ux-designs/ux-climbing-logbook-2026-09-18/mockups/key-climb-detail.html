@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Key Screen — Route/Climb Detail — climbing-logbook</title>
+<style>
+/*
+  Spine sections governing this screen (DESIGN.md / EXPERIENCE.md):
+  - DESIGN.md Colors: {colors.bg,card,panel,ink,ink-soft,line,moss,moss-tint,clay,clay-tint}
+  - DESIGN.md Grade badge tiers table (tier 3 / ochre #C9A227 for 6a+)
+  - DESIGN.md Typography (display/heading/body/caption/eyebrow/mono roles + strict prose-vs-mono split)
+  - DESIGN.md Components: grade-badge, button-flash, button-redpoint, chip, card,
+    photo gallery carousel (session-log position, top of detail), stat-strip, log-row, toast
+  - EXPERIENCE.md Information Architecture > Route/Climb Detail (top-to-bottom content order)
+  - EXPERIENCE.md Component Patterns: Gallery carousel, Grade badge/tags/actions,
+    Log-entry creation for Project/Todo, Comments, Group-vs-mine toggle, Stat strip
+  - EXPERIENCE.md State Patterns: Send-history collapse, Group vs. mine,
+    Error (write) — the crag-connectivity case, Permission-denied (log entries/comments)
+  - EXPERIENCE.md Voice and Tone ("Flashed 6a+ ×5", terse mono copy, no marketing tone)
+  - EXPERIENCE.md Accessibility Floor (grade badge text-always, 44px touch targets)
+*/
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: #DEDAD0;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 32px;
+}
+h1, h2, h3, p { margin: 0; }
+
+.stage {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.col-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2A2E2B;
+  background: #FFFFFF;
+  border: 1px solid #B0A896;
+  border-radius: 6px;
+  padding: 4px 10px;
+  align-self: flex-start;
+}
+
+/* ---------------- Phone device frame ---------------- */
+.phone {
+  width: 390px;
+  height: 800px;
+  background: #17181A;
+  border-radius: 40px;
+  padding: 14px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  position: relative;
+}
+.phone .notch {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 22px;
+  background: #17181A;
+  border-radius: 0 0 14px 14px;
+  z-index: 5;
+}
+.screen {
+  width: 100%;
+  height: 100%;
+  background: #F2F1EC;
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.screen-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 12px;
+}
+.status-bar {
+  height: 34px;
+  flex: none;
+}
+
+/* ---------------- App bar / breadcrumb ---------------- */
+.app-bar {
+  padding: 6px 20px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.breadcrumb {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #5C5850;
+}
+.back-chevron {
+  font-size: 15px;
+  color: #2A2E2B;
+  font-weight: 700;
+}
+
+/* ---------------- Gallery carousel ---------------- */
+.gallery {
+  display: flex;
+  gap: 10px;
+  padding: 10px 20px 4px;
+  overflow-x: auto;
+}
+.gallery-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 210px;
+  height: 140px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #B0A896;
+}
+.gallery-item .ph1 { background: linear-gradient(135deg, #8FA671 0%, #5C5850 100%); width:100%; height:100%; }
+.gallery-item .ph2 { background: linear-gradient(135deg, #C9A227 0%, #7A3F29 100%); width:100%; height:100%; }
+.gallery-item .ph3 { background: linear-gradient(135deg, #3D6B8A 0%, #2A2E2B 100%); width:100%; height:100%; }
+.gallery-caption {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  background: rgba(42,46,43,0.72);
+  color: #F2F1EC;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+/* ---------------- Title block ---------------- */
+.title-block {
+  padding: 14px 20px 0;
+}
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.route-title {
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #2A2E2B;
+}
+.grade-badge {
+  font-family: "Courier New", Consolas, monospace;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 4px 10px;
+  white-space: nowrap;
+  flex: none;
+}
+.tier-3 { background: #C9A227; color: #2A2E2B; }
+.tier-1 { background: #8FA671; color: #2A2E2B; }
+.tier-2 { background: #3E5C42; color: #F2F1EC; }
+.tier-4 { background: #7A3F29; color: #F2F1EC; }
+.tier-5 { background: #3D6B8A; color: #F2F1EC; }
+.tier-6 { background: #6B4C7A; color: #F2F1EC; }
+.tier-7 { background: #1C1B19; color: #F2F1EC; border: 1px solid #F2F1EC; }
+
+/* tag chips */
+.chips {
+  display: flex;
+  gap: 8px;
+  padding: 10px 20px 0;
+  flex-wrap: wrap;
+}
+.chip {
+  background: #E7EDE7;
+  color: #3E5C42;
+  border: 1px solid #3E5C42;
+  border-radius: 9999px;
+  font-size: 12.5px;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 4px 12px;
+}
+
+/* description */
+.description {
+  padding: 12px 20px 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #2A2E2B;
+}
+
+/* stat strip */
+.stat-strip {
+  display: flex;
+  margin: 14px 20px 0;
+  border: 1px solid #B0A896;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #FFFFFF;
+}
+.stat-cell {
+  flex: 1;
+  padding: 10px 6px;
+  text-align: center;
+  border-right: 1px solid #B0A896;
+}
+.stat-cell:last-child { border-right: none; }
+.stat-value {
+  font-family: "Courier New", Consolas, monospace;
+  font-weight: 700;
+  font-size: 15px;
+  color: #2A2E2B;
+}
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #5C5850;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+
+/* group vs mine toggle */
+.scope-toggle-row {
+  padding: 14px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-heading {
+  font-size: 19px;
+  font-weight: 700;
+  color: #2A2E2B;
+}
+.toggle-group {
+  display: flex;
+  border: 1px solid #B0A896;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.toggle-opt {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #5C5850;
+  background: #EDE9E1;
+}
+.toggle-opt.active {
+  background: #3E5C42;
+  color: #F2F1EC;
+}
+
+/* actions */
+.actions-row {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px 0;
+}
+.btn-flash, .btn-redpoint {
+  flex: 1;
+  height: 46px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.btn-flash {
+  background: #3E5C42;
+  color: #F2F1EC;
+  border: none;
+}
+.btn-redpoint {
+  background: #FFFFFF;
+  color: #A65A3C;
+  border: 1.5px solid #A65A3C;
+}
+.actions-row-secondary {
+  display: flex;
+  gap: 10px;
+  padding: 8px 20px 0;
+}
+.btn-ghost {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5C5850;
+  background: transparent;
+  border: 1px dashed #B0A896;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* send history */
+.log-section {
+  padding: 18px 20px 0;
+}
+.log-table {
+  border: 1px solid #B0A896;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.log-row {
+  font-family: "Courier New", Consolas, monospace;
+  font-size: 11px;
+  color: #5C5850;
+  display: grid;
+  grid-template-columns: 84px 76px 1fr;
+  padding: 7px 12px;
+}
+.log-row.stripe { background: #EDE9E1; }
+.log-row .status-flash { color: #3E5C42; font-weight: 700; }
+.log-row .status-redpoint { color: #A65A3C; font-weight: 700; }
+.log-row.header {
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #5C5850;
+  text-transform: uppercase;
+  background: #FFFFFF;
+  border-bottom: 1px solid #B0A896;
+}
+.expand-link {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #3E5C42;
+}
+
+/* comments */
+.comments-section {
+  padding: 18px 20px 24px;
+}
+.comment {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #B0A896;
+}
+.comment:last-child { border-bottom: none; }
+.comment-body { font-size: 15px; color: #2A2E2B; line-height: 1.4; }
+.comment-meta { font-size: 12.5px; color: #5C5850; margin-top: 3px; }
+.comment-actions {
+  font-size: 11px;
+  font-weight: 600;
+  color: #A65A3C;
+  flex: none;
+  white-space: nowrap;
+}
+
+/* toast */
+.toast {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 28px;
+  background: #2A2E2B;
+  color: #F2F1EC;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+  font-family: "Courier New", Consolas, monospace;
+  font-size: 15px;
+  font-weight: 700;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.toast .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #8FA671; flex: none;
+}
+.toast-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(42,46,43,0.18);
+  z-index: 10;
+}
+
+/* error banner */
+.error-banner {
+  margin: 14px 20px 0;
+  background: #F3E4DC;
+  border: 1.5px solid #A65A3C;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.error-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #7A3F29;
+  margin-bottom: 2px;
+}
+.error-body {
+  font-size: 12.5px;
+  color: #5C5850;
+  margin-bottom: 10px;
+}
+.error-preserved {
+  font-family: "Courier New", Consolas, monospace;
+  font-size: 11px;
+  color: #5C5850;
+  background: #FFFFFF;
+  border: 1px solid #B0A896;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 10px;
+}
+.btn-retry {
+  height: 40px;
+  border-radius: 10px;
+  background: #A65A3C;
+  color: #F2F1EC;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ===================== STATE A — Canonical ===================== -->
+  <div class="col">
+    <div class="col-label">A — Canonical: Route/Climb Detail</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar"></div>
+        <div class="screen-scroll">
+
+          <div class="app-bar">
+            <span class="back-chevron">‹</span>
+            <span class="breadcrumb">Céüse › Berger</span>
+            <span style="width:15px;"></span>
+          </div>
+
+          <div class="gallery">
+            <div class="gallery-item"><div class="ph1"></div><div class="gallery-caption">Send day</div></div>
+            <div class="gallery-item"><div class="ph2"></div><div class="gallery-caption">Topo sketch</div></div>
+            <div class="gallery-item"><div class="ph3"></div><div class="gallery-caption">Approach</div></div>
+          </div>
+
+          <div class="title-block">
+            <div class="title-row">
+              <div class="route-title">Fissure du Matin</div>
+              <div class="grade-badge tier-3">6a+</div>
+            </div>
+          </div>
+
+          <div class="chips">
+            <div class="chip">overhang</div>
+            <div class="chip">crimpy</div>
+          </div>
+
+          <div class="description">
+            Sustained bulge on pockets, then a bolted rest before the final crimp ladder to the anchor. Shady most of the day — good for August afternoons.
+          </div>
+
+          <div class="stat-strip">
+            <div class="stat-cell">
+              <div class="stat-value">22m</div>
+              <div class="stat-label">Length</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-value">9</div>
+              <div class="stat-label">Bolts</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-value">2023</div>
+              <div class="stat-label">First logged</div>
+            </div>
+          </div>
+
+          <div class="scope-toggle-row">
+            <div class="section-heading" style="font-size:15px;">Group activity</div>
+            <div class="toggle-group">
+              <div class="toggle-opt">Mine</div>
+              <div class="toggle-opt active">Group</div>
+            </div>
+          </div>
+
+          <div class="actions-row">
+            <button class="btn-flash">Flash</button>
+            <button class="btn-redpoint">Redpoint</button>
+          </div>
+          <div class="actions-row-secondary">
+            <button class="btn-ghost">Mark as project</button>
+            <button class="btn-ghost">Add to todo</button>
+          </div>
+
+          <div class="log-section">
+            <div class="section-heading">Send history</div>
+            <div class="log-table">
+              <div class="log-row header">
+                <div>Date</div><div>Status</div><div>User</div>
+              </div>
+              <div class="log-row">
+                <div>2026-09-18</div><div class="status-flash">flash</div><div>joel</div>
+              </div>
+              <div class="log-row stripe">
+                <div>2026-06-02</div><div class="status-redpoint">redpoint</div><div>marie</div>
+              </div>
+              <div class="log-row">
+                <div>2025-11-14</div><div>attempt</div><div>marie</div>
+              </div>
+              <div class="log-row stripe">
+                <div>2025-08-03</div><div class="status-flash">flash</div><div>théo</div>
+              </div>
+            </div>
+            <div class="expand-link">Show all 12 entries ▾</div>
+          </div>
+
+          <div class="comments-section">
+            <div class="section-heading">Comments</div>
+            <div class="comment">
+              <div>
+                <div class="comment-body">Bring extra chalk — the pockets get slick once the sun hits them mid-afternoon.</div>
+                <div class="comment-meta">joel · today</div>
+              </div>
+              <div class="comment-actions">Edit · Delete</div>
+            </div>
+            <div class="comment">
+              <div>
+                <div class="comment-body">Rest before the crimp ladder is good enough to shake out both hands.</div>
+                <div class="comment-meta">marie · 3 months ago</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STATE B — Flash toast ===================== -->
+  <div class="col">
+    <div class="col-label">B — Right after tapping Flash: toast visible</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar"></div>
+        <div class="screen-scroll" style="overflow:hidden;">
+
+          <div class="app-bar">
+            <span class="back-chevron">‹</span>
+            <span class="breadcrumb">Céüse › Berger</span>
+            <span style="width:15px;"></span>
+          </div>
+
+          <div class="gallery">
+            <div class="gallery-item"><div class="ph1"></div><div class="gallery-caption">Send day</div></div>
+            <div class="gallery-item"><div class="ph2"></div><div class="gallery-caption">Topo sketch</div></div>
+          </div>
+
+          <div class="title-block">
+            <div class="title-row">
+              <div class="route-title">Fissure du Matin</div>
+              <div class="grade-badge tier-3">6a+</div>
+            </div>
+          </div>
+
+          <div class="chips">
+            <div class="chip">overhang</div>
+            <div class="chip">crimpy</div>
+          </div>
+
+          <div class="stat-strip">
+            <div class="stat-cell">
+              <div class="stat-value">22m</div>
+              <div class="stat-label">Length</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-value">9</div>
+              <div class="stat-label">Bolts</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-value">2023</div>
+              <div class="stat-label">First logged</div>
+            </div>
+          </div>
+
+          <div class="actions-row">
+            <button class="btn-flash">Flash</button>
+            <button class="btn-redpoint">Redpoint</button>
+          </div>
+
+          <div class="log-section">
+            <div class="section-heading">Send history</div>
+            <div class="log-table">
+              <div class="log-row header"><div>Date</div><div>Status</div><div>User</div></div>
+              <div class="log-row"><div>2026-09-18</div><div class="status-flash">flash</div><div>joel</div></div>
+              <div class="log-row stripe"><div>2026-06-02</div><div class="status-redpoint">redpoint</div><div>marie</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="toast-dim"></div>
+        <div class="toast">
+          <div class="dot"></div>
+          Flashed 6a+ ×5
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STATE C — Error / retry (write) ===================== -->
+  <div class="col">
+    <div class="col-label">C — Error (write): Flash failed, Retry shown</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar"></div>
+        <div class="screen-scroll">
+
+          <div class="app-bar">
+            <span class="back-chevron">‹</span>
+            <span class="breadcrumb">Céüse › Berger</span>
+            <span style="width:15px;"></span>
+          </div>
+
+          <div class="gallery">
+            <div class="gallery-item"><div class="ph1"></div><div class="gallery-caption">Send day</div></div>
+            <div class="gallery-item"><div class="ph2"></div><div class="gallery-caption">Topo sketch</div></div>
+          </div>
+
+          <div class="title-block">
+            <div class="title-row">
+              <div class="route-title">Fissure du Matin</div>
+              <div class="grade-badge tier-3">6a+</div>
+            </div>
+          </div>
+
+          <div class="chips">
+            <div class="chip">overhang</div>
+            <div class="chip">crimpy</div>
+          </div>
+
+          <div class="error-banner">
+            <div class="error-title">Couldn't save your Redpoint</div>
+            <div class="error-body">No connection at the crag — nothing was lost. Your entry is still here.</div>
+            <div class="error-preserved">6a+ · redpoint · 3 attempts · 2026-09-18</div>
+            <button class="btn-retry">Retry</button>
+          </div>
+
+          <div class="stat-strip">
+            <div class="stat-cell">
+              <div class="stat-value">22m</div>
+              <div class="stat-label">Length</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-value">9</div>
+              <div class="stat-label">Bolts</div>
+            </div>
+            <div class="stat-cell">
+              <div class="stat-value">2023</div>
+              <div class="stat-label">First logged</div>
+            </div>
+          </div>
+
+          <div class="actions-row">
+            <button class="btn-flash">Flash</button>
+            <button class="btn-redpoint">Redpoint</button>
+          </div>
+
+          <div class="log-section">
+            <div class="section-heading">Send history</div>
+            <div class="log-table">
+              <div class="log-row header"><div>Date</div><div>Status</div><div>User</div></div>
+              <div class="log-row"><div>2025-11-14</div><div>attempt</div><div>marie</div></div>
+              <div class="log-row stripe"><div>2025-08-03</div><div class="status-flash">flash</div><div>théo</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

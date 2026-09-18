@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Key Screen — Area Page — climbing-logbook</title>
+<style>
+/*
+  Spine sections governing this screen (DESIGN.md / EXPERIENCE.md):
+  - DESIGN.md Layout & Spacing: desktop two-pane Area Page (fixed list pane ~340-380px + flexible docked map pane)
+  - DESIGN.md Components: grade-badge (7-tier table), card, panel-recessed (docked map surface),
+    "Area page map/list split" (straight-line seam, no radius break), shadcn-svelte-default controls
+    (list-mode/sort control, view toggle) themed with global tokens only
+  - DESIGN.md Typography: heading role used for area-page <h1>; eyebrow for sector labels; mono for grade badges
+  - EXPERIENCE.md Information Architecture > Area Page (map docked right default, flat|grouped-by-sector,
+    sort hardest-first default, add sector from Area Page)
+  - EXPERIENCE.md Component Patterns: Area Page split layout, List mode toggle + sort control placement,
+    Map click semantics (marker -> open, empty point -> create)
+  - EXPERIENCE.md Responsive & Platform: desktop = two-pane Area Page, wider than phone's toggle-based layout
+*/
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: #DEDAD0;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 32px;
+}
+
+.col-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2A2E2B;
+  background: #FFFFFF;
+  border: 1px solid #B0A896;
+  border-radius: 6px;
+  padding: 4px 10px;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+/* ---------------- Browser device frame ---------------- */
+.browser {
+  width: 1240px;
+  background: #17181A;
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.28);
+}
+.browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 10px;
+}
+.dots { display: flex; gap: 6px; }
+.dot { width: 11px; height: 11px; border-radius: 50%; }
+.dot.r { background: #E0645A; }
+.dot.y { background: #E3B341; }
+.dot.g { background: #62C471; }
+.url-bar {
+  flex: 1;
+  height: 26px;
+  background: #2B2C2E;
+  border-radius: 7px;
+  color: #B0A896;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.window {
+  background: #F2F1EC;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  height: 760px;
+}
+
+/* ---------------- List pane ---------------- */
+.list-pane {
+  width: 380px;
+  flex: none;
+  background: #F2F1EC;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.list-header {
+  padding: 20px 20px 0;
+}
+.crumb {
+  font-size: 12.5px;
+  color: #5C5850;
+  margin-bottom: 6px;
+}
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.area-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: #2A2E2B;
+}
+.btn-add-sector {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: #3E5C42;
+  color: #F2F1EC;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  display: flex;
+  align-items: center;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.segmented {
+  display: flex;
+  border: 1px solid #B0A896;
+  border-radius: 10px;
+  overflow: hidden;
+  flex: none;
+}
+.segmented .opt {
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #5C5850;
+  background: #FFFFFF;
+}
+.segmented .opt.active {
+  background: #EDE9E1;
+  color: #2A2E2B;
+}
+.sort-select {
+  flex: none;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid #B0A896;
+  border-radius: 10px;
+  background: #FFFFFF;
+  font-size: 12.5px;
+  color: #2A2E2B;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.list-body {
+  padding: 0 12px 16px;
+}
+.climb-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border-bottom: 1px solid #B0A896;
+}
+.climb-row:hover { background: #FFFFFF; }
+.thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  flex: none;
+  border: 1px solid #B0A896;
+}
+.thumb.t1 { background: linear-gradient(135deg,#1C1B19,#5C5850); }
+.thumb.t2 { background: linear-gradient(135deg,#1C1B19,#3D6B8A); }
+.thumb.t3 { background: linear-gradient(135deg,#1C1B19,#6B4C7A); }
+.thumb.t4 { background: linear-gradient(135deg,#7A3F29,#C9A227); }
+.thumb.t5 { background: linear-gradient(135deg,#3D6B8A,#8FA671); }
+.thumb.t6 { background: linear-gradient(135deg,#C9A227,#8FA671); }
+.thumb.t7 { background: linear-gradient(135deg,#3E5C42,#8FA671); }
+.thumb.t8 { background: linear-gradient(135deg,#8FA671,#F2F1EC); }
+
+.row-main { flex: 1; min-width: 0; }
+.sector-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #5C5850;
+  text-transform: uppercase;
+}
+.climb-name {
+  font-size: 15px;
+  color: #2A2E2B;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.grade-badge {
+  font-family: "Courier New", Consolas, monospace;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 4px 10px;
+  flex: none;
+}
+.tier-1 { background: #8FA671; color: #2A2E2B; }
+.tier-2 { background: #3E5C42; color: #F2F1EC; }
+.tier-3 { background: #C9A227; color: #2A2E2B; }
+.tier-4 { background: #7A3F29; color: #F2F1EC; }
+.tier-5 { background: #3D6B8A; color: #F2F1EC; }
+.tier-6 { background: #6B4C7A; color: #F2F1EC; }
+.tier-7 { background: #1C1B19; color: #F2F1EC; border: 1px solid #F2F1EC; }
+
+/* ---------------- Map pane ---------------- */
+.map-pane {
+  flex: 1;
+  position: relative;
+  background: #EDE9E1;
+  border-left: 1px solid #B0A896;
+  overflow: hidden;
+}
+.map-surface {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(143,166,113,0.35) 0, transparent 40%),
+    radial-gradient(circle at 70% 60%, rgba(61,107,138,0.25) 0, transparent 45%),
+    radial-gradient(circle at 45% 80%, rgba(201,162,39,0.25) 0, transparent 40%),
+    #EDE9E1;
+}
+.contour {
+  position: absolute;
+  border: 1px solid rgba(176,168,150,0.55);
+  border-radius: 50%;
+}
+.pin {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #A65A3C;
+  border: 2px solid #F2F1EC;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.pin-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2A2E2B;
+  background: #FFFFFF;
+  border: 1px solid #B0A896;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+.pin.active .pin-dot { background: #3E5C42; }
+
+.map-topbar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 5;
+}
+.btn-collapse {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #B0A896;
+  color: #2A2E2B;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.map-caption {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #5C5850;
+  text-transform: uppercase;
+  background: #F2F1EC;
+  border: 1px solid #B0A896;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+</style>
+</head>
+<body>
+
+<div class="col-label">Area Page — desktop two-pane split — Céüse</div>
+
+<div class="browser">
+  <div class="browser-bar">
+    <div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+    <div class="url-bar">app.climbing-logbook.six/areas/ceuse</div>
+  </div>
+
+  <div class="window">
+
+    <!-- LIST PANE -->
+    <div class="list-pane">
+      <div class="list-header">
+        <div class="crumb">Home &nbsp;›&nbsp; Areas</div>
+        <div class="title-row">
+          <div class="area-title">Céüse</div>
+          <button class="btn-add-sector">+ Add sector</button>
+        </div>
+        <div class="controls-row">
+          <div class="segmented">
+            <div class="opt">Flat</div>
+            <div class="opt active">Grouped by sector</div>
+          </div>
+          <div class="sort-select">Sort: Hardest first ▾</div>
+        </div>
+      </div>
+
+      <div class="list-body">
+
+        <div class="climb-row">
+          <div class="thumb t1"></div>
+          <div class="row-main">
+            <div class="sector-label">Biographie</div>
+            <div class="climb-name">Biographie</div>
+          </div>
+          <div class="grade-badge tier-7">8a+</div>
+        </div>
+
+        <div class="climb-row">
+          <div class="thumb t2"></div>
+          <div class="row-main">
+            <div class="sector-label">Berger</div>
+            <div class="climb-name">La Ligne Blanche</div>
+          </div>
+          <div class="grade-badge tier-7">8a</div>
+        </div>
+
+        <div class="climb-row">
+          <div class="thumb t3"></div>
+          <div class="row-main">
+            <div class="sector-label">Face Nord</div>
+            <div class="climb-name">Une Nuit à Calvi</div>
+          </div>
+          <div class="grade-badge tier-7">8a-</div>
+        </div>
+
+        <div class="climb-row">
+          <div class="thumb t4"></div>
+          <div class="row-main">
+            <div class="sector-label">Casse Déserte</div>
+            <div class="climb-name">Demande à la Poussière</div>
+          </div>
+          <div class="grade-badge tier-5">7b</div>
+        </div>
+
+        <div class="climb-row">
+          <div class="thumb t5"></div>
+          <div class="row-main">
+            <div class="sector-label">Face Nord</div>
+            <div class="climb-name">Le Toit du Monde</div>
+          </div>
+          <div class="grade-badge tier-5">7a+</div>
+        </div>
+
+        <div class="climb-row">
+          <div class="thumb t6"></div>
+          <div class="row-main">
+            <div class="sector-label">Berger</div>
+            <div class="climb-name">Fissure du Matin</div>
+          </div>
+          <div class="grade-badge tier-3">6a+</div>
+        </div>
+
+        <div class="climb-row">
+          <div class="thumb t7"></div>
+          <div class="row-main">
+            <div class="sector-label">Casse Déserte</div>
+            <div class="climb-name">Little Big Man</div>
+          </div>
+          <div class="grade-badge tier-2">5c</div>
+        </div>
+
+        <div class="climb-row">
+          <div class="thumb t8"></div>
+          <div class="row-main">
+            <div class="sector-label">Berger</div>
+            <div class="climb-name">Le Pilier des Débutants</div>
+          </div>
+          <div class="grade-badge tier-1">4c</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MAP PANE -->
+    <div class="map-pane">
+      <div class="map-surface">
+        <div class="contour" style="width:340px;height:340px;top:-60px;left:60px;"></div>
+        <div class="contour" style="width:220px;height:220px;top:20px;left:120px;"></div>
+        <div class="contour" style="width:420px;height:420px;top:220px;left:340px;"></div>
+        <div class="contour" style="width:260px;height:260px;top:300px;left:420px;"></div>
+      </div>
+
+      <div class="map-topbar">
+        <div class="btn-collapse">‹ Collapse map</div>
+      </div>
+
+      <div class="pin active" style="top:180px; left:160px;">
+        <div class="pin-label">Berger</div>
+        <div class="pin-dot"></div>
+      </div>
+      <div class="pin" style="top:120px; left:340px;">
+        <div class="pin-label">Biographie</div>
+        <div class="pin-dot"></div>
+      </div>
+      <div class="pin" style="top:300px; left:280px;">
+        <div class="pin-label">Face Nord</div>
+        <div class="pin-dot"></div>
+      </div>
+      <div class="pin" style="top:400px; left:460px;">
+        <div class="pin-label">Casse Déserte</div>
+        <div class="pin-dot"></div>
+      </div>
+
+      <div class="map-caption">Docked map · Céüse</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

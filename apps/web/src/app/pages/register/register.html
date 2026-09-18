@@ -1,0 +1,76 @@
+<div class="mx-auto max-w-sm">
+  <div hlmCard class="p-6">
+    <h1 class="mb-4 text-xl font-semibold">Register</h1>
+
+    <form [formRoot]="registerForm" class="flex flex-col gap-4">
+      <div hlmField>
+        <label hlmFieldLabel for="name">Name</label>
+        <input
+          id="name"
+          hlmInput
+          [formField]="registerForm.name"
+          [forceInvalid]="registerForm.name().touched() && registerForm.name().invalid()"
+        />
+        @if (registerForm.name().touched() && registerForm.name().invalid()) {
+          <hlm-field-error forceShow>
+            @for (error of registerForm.name().errors(); track error.kind) {
+              {{ error.message }}
+            }
+          </hlm-field-error>
+        }
+      </div>
+
+      <div hlmField>
+        <label hlmFieldLabel for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          hlmInput
+          [formField]="registerForm.email"
+          [forceInvalid]="registerForm.email().touched() && registerForm.email().invalid()"
+        />
+        @if (registerForm.email().touched() && registerForm.email().invalid()) {
+          <hlm-field-error forceShow>
+            @for (error of registerForm.email().errors(); track error.kind) {
+              {{ error.message }}
+            }
+          </hlm-field-error>
+        }
+      </div>
+
+      <div hlmField>
+        <label hlmFieldLabel for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          hlmInput
+          [formField]="registerForm.password"
+          [forceInvalid]="registerForm.password().touched() && registerForm.password().invalid()"
+        />
+        @if (registerForm.password().touched() && registerForm.password().invalid()) {
+          <hlm-field-error forceShow>
+            @for (error of registerForm.password().errors(); track error.kind) {
+              {{ error.message }}
+            }
+          </hlm-field-error>
+        }
+      </div>
+
+      @for (error of registerForm().errors(); track error.kind) {
+        <p class="text-sm text-destructive">{{ error.message }}</p>
+      }
+
+      <button type="submit" hlmBtn [disabled]="registerForm().submitting() || registerForm().pending()">
+        @if (registerForm().submitting()) {
+          Creating account...
+        } @else {
+          Register
+        }
+      </button>
+    </form>
+
+    <p class="mt-4 text-sm text-muted-foreground">
+      Already have an account? <a routerLink="/login" class="underline">Log in</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Climbing Logbook — Direction: Vertical Grid</title>
+<style>
+/*
+  DIRECTION: Vertical Grid
+  Register: bold graphic poster / competition-wall scoreboard — hard edges, zero
+  radius, huge type. Built for the moment of sending, not for lingering on details;
+  the flash confirmation reads like a scoreboard tick, loud and immediate.
+
+  PALETTE
+  --bg:    #FFFFFF  page/screen background
+  --ink:   #101014  primary text and solid black blocks
+  --lime:  #C4F135  primary accent — Flash, grade badge fill
+  --red:   #E23744  secondary accent — Redpoint, project pins
+  --grey:  #A9ACB0  secondary text / hairlines (used sparingly, thin only)
+*/
+html,body{margin:0;padding:0;background:#E7E7E5;font-family:"Helvetica Neue",Arial,sans-serif;color:#101014;}
+.rationale{max-width:1200px;margin:0 auto;padding:20px 24px 4px;font-size:13px;line-height:1.6;color:#5b5c5f;}
+.stage{display:flex;flex-wrap:wrap;gap:44px;align-items:flex-start;justify-content:center;padding:24px 24px 64px;max-width:1300px;margin:0 auto;}
+
+/* ---------- PHONE ---------- */
+.phone{width:375px;height:812px;background:#101014;padding:0;box-shadow:0 30px 60px -20px rgba(0,0,0,.5);flex-shrink:0;border-radius:8px;}
+.screen{width:100%;height:100%;background:#fff;overflow:hidden;position:relative;border:8px solid #101014;box-sizing:border-box;display:flex;flex-direction:column;}
+.spacer{flex:1;}
+.statusbar{display:flex;justify-content:space-between;padding:14px 20px 0;font-size:12px;font-weight:800;}
+
+.appbar{padding:14px 20px 0;font-size:11px;font-weight:700;color:#101014;border-bottom:3px solid #101014;padding-bottom:10px;margin:0 20px;}
+
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.photo{height:100px;position:relative;border-right:2px solid #101014;border-bottom:2px solid #101014;}
+.photo:nth-child(2){border-right:none;}
+.p1{background:linear-gradient(155deg,#8a8a8a,#2c2c2c);}
+.p2{background:linear-gradient(160deg,#9c9c9c,#3a3a3a);}
+
+.gradeblock{display:flex;}
+.grade{width:96px;background:#C4F135;color:#101014;font-size:34px;font-weight:900;display:flex;align-items:center;justify-content:center;border-right:2px solid #101014;}
+.nameblock{flex:1;padding:10px 16px;display:flex;flex-direction:column;justify-content:center;}
+.name{font-size:22px;font-weight:900;margin:0;line-height:1.05;letter-spacing:-.3px;}
+.crumb{font-size:11px;color:#5b5c5f;margin-top:4px;font-weight:600;}
+
+.chips{display:flex;border-top:2px solid #101014;border-bottom:2px solid #101014;}
+.chip{flex:1;text-align:center;padding:8px 4px;font-size:11.5px;font-weight:700;border-right:2px solid #101014;}
+.chip:last-child{border-right:none;}
+
+.desc{padding:12px 20px;font-size:13px;line-height:1.5;color:#333;border-bottom:2px solid #101014;}
+
+.statrow{display:flex;border-bottom:2px solid #101014;}
+.stat{flex:1;text-align:center;padding:12px 4px;border-right:2px solid #101014;}
+.stat:last-child{border-right:none;}
+.stat .v{font-size:18px;font-weight:900;}
+.stat .l{font-size:9.5px;font-weight:700;color:#5b5c5f;}
+
+.logtable{border-bottom:2px solid #101014;}
+.logrow{display:flex;justify-content:space-between;padding:9px 20px;font-size:11.5px;font-weight:700;border-bottom:1px solid #ddd;}
+.logrow:last-child{border-bottom:none;}
+.logrow span:last-child{color:#5b5c5f;font-weight:600;}
+
+.actions{display:flex;}
+.btn{flex:1;text-align:center;padding:20px 0;font-size:17px;font-weight:900;}
+.btn.flash{background:#C4F135;color:#101014;}
+.btn.redpoint{background:#E23744;color:#fff;}
+
+.toast{position:absolute;left:0;right:0;bottom:64px;background:#101014;color:#C4F135;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-top:2px solid #C4F135;border-bottom:2px solid #C4F135;}
+.toast .main{font-size:13px;font-weight:800;color:#fff;}
+.toast .plus{font-size:15px;font-weight:900;}
+
+/* ---------- BROWSER ---------- */
+.browser{width:800px;background:#fff;box-shadow:0 30px 60px -20px rgba(0,0,0,.4);overflow:hidden;flex-shrink:0;border:2px solid #101014;}
+.chrome{background:#101014;padding:10px 14px;display:flex;align-items:center;gap:8px;}
+.dotr{width:9px;height:9px;border-radius:50%;background:#5b5c5f;}
+.dotr.a{background:#C4F135;}
+.url{margin-left:10px;background:#fff;font-size:11.5px;color:#101014;font-weight:700;padding:5px 12px;flex:1;}
+
+.appwin{display:flex;height:500px;}
+.leftpanel{width:360px;border-right:2px solid #101014;overflow:hidden;display:flex;flex-direction:column;}
+.areahead{padding:16px 20px;border-bottom:3px solid #101014;}
+.areahead h1{font-size:26px;margin:0;font-weight:900;letter-spacing:-.5px;}
+.areahead p{margin:4px 0 0;font-size:11.5px;font-weight:700;color:#5b5c5f;}
+.sector-label{font-size:10.5px;font-weight:800;padding:10px 20px 4px;background:#101014;color:#fff;}
+.routerow{display:flex;align-items:center;gap:0;border-bottom:1px solid #ddd;}
+.rgrade{width:44px;background:#C4F135;text-align:center;font-size:13px;font-weight:900;padding:9px 0;flex-shrink:0;}
+.rthumb{width:34px;height:34px;flex-shrink:0;margin-left:8px;}
+.rt1{background:linear-gradient(160deg,#8a8a8a,#2c2c2c);}
+.rt2{background:linear-gradient(160deg,#9c9c9c,#3a3a3a);}
+.rt3{background:linear-gradient(150deg,#aaa,#444);}
+.rname{flex:1;font-size:12.5px;font-weight:700;padding:0 10px;}
+.rstatus{font-size:10px;font-weight:800;color:#E23744;padding-right:14px;}
+.rstatus.done{color:#7a9a00;}
+
+.mappanel{flex:1;position:relative;background:#101014;}
+.pin{position:absolute;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:16px solid #C4F135;}
+.pin.p2{border-top-color:#E23744;}
+.pinlabel{position:absolute;font-size:10.5px;font-weight:800;color:#fff;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="rationale">Hard black rules, zero radius, and a grade badge that fills a solid block — this reads like a competition scoreboard, not a wellness app. The flash toast slams in as a black scoreboard bar; every action is a full-width block, thumb-friendly for a chalked-up hand mid-session.</div>
+<div class="stage">
+
+  <div class="phone">
+    <div class="screen">
+      <div class="statusbar"><span>14:32</span><span>84%</span></div>
+      <div class="appbar">CÉÜSE / BERGER</div>
+      <div class="gallery">
+        <div class="photo p1"></div>
+        <div class="photo p2"></div>
+      </div>
+      <div class="gradeblock">
+        <div class="grade">6a+</div>
+        <div class="nameblock">
+          <h1 class="name">Fissure du Matin</h1>
+          <div class="crumb">22m · 9 bolts</div>
+        </div>
+      </div>
+      <div class="chips"><div class="chip">overhang</div><div class="chip">crimpy</div></div>
+      <div class="desc">Sustained bulge off the ledge into a crimpy, technical exit past the roof.</div>
+      <div class="statrow">
+        <div class="stat"><div class="v">22m</div><div class="l">LENGTH</div></div>
+        <div class="stat"><div class="v">9</div><div class="l">BOLTS</div></div>
+        <div class="stat"><div class="v">3</div><div class="l">ATTEMPTS</div></div>
+      </div>
+      <div class="logtable">
+        <div class="logrow"><span>2026-08-02</span><span>REDPOINT · JOEL</span></div>
+        <div class="logrow"><span>2024-09-30</span><span>FLASH · MIRA</span></div>
+      </div>
+      <div class="spacer"></div>
+      <div class="toast">
+        <span class="main">Flashed 5 routes at 6a+</span>
+        <span class="plus">+1</span>
+      </div>
+      <div class="actions">
+        <div class="btn flash">Flash</div>
+        <div class="btn redpoint">Redpoint</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="chrome">
+      <span class="dotr"></span><span class="dotr"></span><span class="dotr a"></span>
+      <div class="url">climbing-logbook.home/areas/ceuse</div>
+    </div>
+    <div class="appwin">
+      <div class="leftpanel">
+        <div class="areahead"><h1>CÉÜSE</h1><p>3 sectors — 42 routes</p></div>
+
+        <div class="sector-label">BIOGRAPHIE</div>
+        <div class="routerow"><span class="rgrade">8a</span><div class="rthumb rt1"></div><div class="rname">Biographie</div></div>
+
+        <div class="sector-label">FACE NORD</div>
+        <div class="routerow"><span class="rgrade">7c+</span><div class="rthumb rt2"></div><div class="rname">La Ravivée</div></div>
+        <div class="routerow"><span class="rgrade">5c</span><div class="rthumb rt3"></div><div class="rname">Voie des Chèvres</div></div>
+
+        <div class="sector-label">BERGER</div>
+        <div class="routerow"><span class="rgrade">7b</span><div class="rthumb rt1"></div><div class="rname">Le Toit du Berger</div><span class="rstatus">TODO</span></div>
+        <div class="routerow"><span class="rgrade">6c</span><div class="rthumb rt2"></div><div class="rname">Dalle Fantôme</div></div>
+        <div class="routerow"><span class="rgrade">6a+</span><div class="rthumb rt3"></div><div class="rname">Fissure du Matin</div><span class="rstatus done">FLASH</span></div>
+      </div>
+      <div class="mappanel">
+        <div class="pin" style="top:60px;left:126px;"></div>
+        <div class="pinlabel" style="top:78px;left:112px;">BERGER</div>
+        <div class="pin p2" style="top:150px;left:246px;"></div>
+        <div class="pinlabel" style="top:168px;left:222px;">BIOGRAPHIE</div>
+        <div class="pin" style="top:260px;left:96px;"></div>
+        <div class="pinlabel" style="top:278px;left:82px;">FACE NORD</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

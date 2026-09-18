@@ -1,0 +1,24 @@
+# Review: Reconciling ARCHITECTURE-SPINE against brainstorm-intent
+
+**Inputs:**
+- `_bmad-output/brainstorming/brainstorm-frontend-stack-2026-09-18/brainstorm-intent.md` (+ its `.memlog.md`)
+- `_bmad-output/planning-artifacts/architecture/architecture-climbing-logbook-2026-09-18/ARCHITECTURE-SPINE.md` (+ its `.memlog.md`)
+
+**Verdict:** The spine faithfully carries forward the concrete technical decisions (SvelteKit+shadcn-svelte full swap, no native/PWA, v1-simplicity bias) and the "no native" resolution is a real, deliberate resolution rather than a silent drop — but three items from the intent doc's "Decided" section evaporated somewhere between the brainstorm and the coaching-session memlog, and never reached the spine at all.
+
+## Findings
+
+1. **Offline-first deferral silently dropped, not carried into the spine's "Deferred" section.** The intent doc explicitly frames offline-first (local queue-and-sync for new sectors/images) as *descoped, not rejected* — it's the one item called out by name in "Open Questions" as something to "revisit post-v1... once core spec and frontend rewrite land." The spine's `## Deferred` section lists exactly two items (TLS termination, pagination/filtering) and omits offline-first entirely. Tracing back: the architecture-session `.memlog.md` mentions offline-first only inside the AD-1 rollup line ("... plain web app (no native/PWA)...") with no explicit `(question) Deferred:` tag like the other two deferred items got — so it never became a tracked deferral in the coaching session, and consequently never made it into the spine. This is a real gap, not an evolution: the spine has no record that offline-first is intentionally shelved-for-later rather than never-considered.
+
+2. **Primary selection criterion — "AI-coding-agent codegen friendliness outweighs framework merits in isolation" — is absent from the spine (and from the architecture-session memlog).** The intent doc names this as *the* deciding principle for frontend-stack choices, above normal framework trade-offs. The spine's individual ADs (official `sv create` CLI, official `shadcn-svelte` CLI, no third-party starter template, no query library "before it's earned") are all consistent with that principle in effect, but the principle itself is never stated anywhere in the spine. A future reader or agent revisiting AD-3 or AD-8 has no way to know these were driven by "will an AI codegen agent handle this well" rather than ordinary minimalism/taste — the rationale that would justify *not* relaxing them later is missing.
+
+3. **Sequencing constraint ("spec-first, then rewrite the frontend against the spec — not the other way around") isn't acknowledged anywhere in the spine.** This was stated as a firm, deliberate ordering in the intent doc ("not the other way around"), yet the spine — which itself prescribes concrete scaffolding/build steps (AD-3: `sv create`, shadcn-svelte CLI) — says nothing about whether a frontend spec exists yet or must land first. No spec artifact was found elsewhere in `_bmad-output/`. This isn't necessarily a contradiction (an architecture spine and a frontend spec are different artifacts), but the ordering constraint is a quiet one that a build-executing agent reading only the spine would have no way to know about.
+
+4. **The concrete requirement behind "no native" (on-site browser geolocation for GPS capture) is resolved away but not preserved as an obligation.** Intent doc: "The only motivation for 'native' was on-site GPS capture, and browser geolocation in a normal web app already covers that." The spine correctly adopts "no native, no PWA" in AD-1 — that part is a deliberate, well-documented resolution, matching the expected evolution called out in the task. But the positive obligation this rests on (apps/web must actually implement browser Geolocation API capture for on-site sector/climb logging) doesn't appear anywhere in the spine's invariants, structural seed, or entity model (no coordinate/location field surfaces in the ERD). Low severity — this may simply belong in a lower-altitude spec rather than the architecture spine — but flagging it because the spine states the negative decision without recording the requirement that made it safe.
+
+## Non-findings (checked, no issue)
+
+- Full swap vs. run-alongside — AD-1's "Prevents" clause explicitly blocks re-platforming or reintroducing Angular. Matches intent doc's "not run alongside" emphasis.
+- No native app / no PWA-as-native — AD-1 states this directly and is clearly a deliberate resolution of the brainstorm's open "native" question, not a silent drop.
+- v1 simplicity bias — reflected consistently across AD-2 (static SPA, no SSR), AD-8 (no query library "before it's earned"), AD-9 (no separate mock backend), AD-12 (no separate proxy container).
+- Tone — the spine's terse, decision-plus-"Prevents" structure matches the intent doc's blunt, decided-not-tentative voice.

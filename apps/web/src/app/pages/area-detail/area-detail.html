@@ -1,0 +1,63 @@
+@if (area.value(); as area) {
+  <a routerLink="/" class="text-sm text-muted-foreground hover:underline">&larr; All areas</a>
+
+  <h1 class="mt-2 text-2xl font-semibold">{{ area.name }}</h1>
+  @if (area.personalRating) {
+    <p class="text-sm text-muted-foreground">Rating: {{ area.personalRating }}/5</p>
+  }
+
+  <div class="mt-4 grid gap-6 md:grid-cols-2">
+    <div class="flex flex-col gap-4">
+      @if (area.description) {
+        <p>{{ area.description }}</p>
+      }
+      @if (area.howToGetThere) {
+        <div>
+          <h3 class="font-medium">How to get there</h3>
+          <p class="text-sm text-muted-foreground">{{ area.howToGetThere }}</p>
+        </div>
+      }
+      @if (area.comment) {
+        <div>
+          <h3 class="font-medium">Notes</h3>
+          <p class="text-sm text-muted-foreground">{{ area.comment }}</p>
+        </div>
+      }
+
+      @if (media.value()?.length) {
+        <div class="flex flex-wrap gap-2">
+          @for (item of media.value(); track item.id) {
+            @if (item.kind === 'image') {
+              <img [src]="apiUrl + item.url" alt="" class="h-24 w-24 rounded-lg object-cover" />
+            } @else {
+              <video [src]="apiUrl + item.url" class="h-24 w-24 rounded-lg object-cover" controls></video>
+            }
+          }
+        </div>
+      }
+    </div>
+
+    <div class="h-64 rounded-lg border border-border">
+      <app-map [markers]="markers()" (markerClick)="onMarkerClick($event)" />
+    </div>
+  </div>
+
+  <h2 class="mt-8 mb-3 text-base font-semibold">Sectors</h2>
+  <ul class="flex flex-col gap-2">
+    @for (sector of sectors.value(); track sector.id) {
+      <li>
+        <a
+          routerLink="/areas/{{ area.id }}/sectors/{{ sector.id }}"
+          class="block rounded-lg border border-border p-3 hover:border-primary/50"
+        >
+          <div class="font-medium">{{ sector.name }}</div>
+          @if (sector.description) {
+            <p class="text-sm text-muted-foreground">{{ sector.description }}</p>
+          }
+        </a>
+      </li>
+    } @empty {
+      <li class="text-sm text-muted-foreground">No sectors yet.</li>
+    }
+  </ul>
+}

@@ -1,0 +1,63 @@
+@if (climbId(); as id) {
+  <a routerLink="/climbs/{{ id }}" class="text-sm text-muted-foreground hover:underline">&larr; Back to climb</a>
+} @else {
+  <p class="text-sm text-destructive">No climb selected - open this page from a climb's page.</p>
+}
+
+<h1 class="mt-2 mb-4 text-2xl font-semibold">Add log entry</h1>
+
+<form [formRoot]="logForm" class="flex max-w-md flex-col gap-4">
+  <div hlmField>
+    <label hlmFieldLabel for="status">Status</label>
+    <select
+      id="status"
+      [formField]="logForm.status"
+      class="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm"
+    >
+      <option value="flash">Flash</option>
+      <option value="redpoint">Redpoint</option>
+      <option value="project">Project</option>
+      <option value="todo">To do</option>
+    </select>
+  </div>
+
+  <div hlmField>
+    <label hlmFieldLabel for="attempts">Attempts</label>
+    <input
+      id="attempts"
+      type="number"
+      hlmInput
+      [formField]="logForm.attempts"
+      [forceInvalid]="logForm.attempts().touched() && logForm.attempts().invalid()"
+    />
+    @if (logForm.attempts().touched() && logForm.attempts().invalid()) {
+      <hlm-field-error forceShow>
+        @for (error of logForm.attempts().errors(); track error.kind) {
+          {{ error.message }}
+        }
+      </hlm-field-error>
+    }
+  </div>
+
+  <div hlmField>
+    <label hlmFieldLabel for="climbedAt">Date</label>
+    <input id="climbedAt" type="date" hlmInput [formField]="logForm.climbedAt" />
+  </div>
+
+  <div hlmField>
+    <label hlmFieldLabel for="notes">Notes</label>
+    <textarea id="notes" hlmTextarea rows="3" [formField]="logForm.notes"></textarea>
+  </div>
+
+  @for (error of logForm().errors(); track error.kind) {
+    <p class="text-sm text-destructive">{{ error.message }}</p>
+  }
+
+  <button type="submit" hlmBtn [disabled]="!climbId() || logForm().submitting() || logForm().pending()">
+    @if (logForm().submitting()) {
+      Saving...
+    } @else {
+      Save log entry
+    }
+  </button>
+</form>

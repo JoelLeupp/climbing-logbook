@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Climbing Logbook — Direction: Alpine Minimal</title>
+<style>
+/*
+  DIRECTION: Alpine Minimal
+  Register: Swiss editorial / high-end outdoor-catalog restraint — the opposite of
+  a busy tracking app. One accent, thin rules, huge air. The product owner values taste;
+  this direction says "confident enough to leave things out."
+
+  PALETTE
+  --bg:      #FFFFFF  page/screen background
+  --ink:     #14171A  primary text, near-black (not tinted grey)
+  --ink-50:  #7A8087  secondary text
+  --hair:    #E3E5E7  hairline rule / borders
+  --accent:  #2F5D82  slate blue — the only color in the interface besides ink
+  --accent-t:#EAF1F6  accent tint (toast, map water)
+  --panel:   #F7F8F9  faint recessed panel
+*/
+html,body{margin:0;padding:0;background:#EDEEEF;font-family:Helvetica,Arial,sans-serif;color:#14171A;}
+.rationale{max-width:1200px;margin:0 auto;padding:22px 24px 4px;font-size:13px;line-height:1.6;color:#7A8087;}
+.stage{display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start;justify-content:center;padding:24px 24px 64px;max-width:1300px;margin:0 auto;}
+
+/* ---------- PHONE ---------- */
+.phone{width:375px;height:812px;background:#0F1113;border-radius:44px;padding:12px;box-shadow:0 30px 70px -24px rgba(0,0,0,.4);flex-shrink:0;}
+.screen{width:100%;height:100%;background:#fff;border-radius:34px;overflow:hidden;position:relative;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:24px;background:#0F1113;border-radius:0 0 14px 14px;}
+.statusbar{display:flex;justify-content:space-between;padding:18px 26px 0;font-size:12.5px;font-weight:500;letter-spacing:.2px;}
+
+.appbar{padding:22px 26px 0;font-size:12px;color:#7A8087;letter-spacing:.4px;}
+
+.hero{margin:16px 26px 0;height:210px;background:linear-gradient(170deg,#B7BAB6 0%,#8B8F89 45%,#57584F 100%);position:relative;}
+.hero::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(100deg, rgba(255,255,255,.04) 0 2px, transparent 2px 16px);}
+
+.titleblock{padding:26px 26px 0;}
+.gradeline{display:flex;align-items:baseline;gap:14px;}
+.grade{font-size:15px;font-weight:700;border:1.5px solid #14171A;padding:4px 10px;letter-spacing:.3px;}
+.name{font-size:28px;font-weight:300;letter-spacing:-.2px;margin:14px 0 0;line-height:1.1;}
+
+.meta{padding:14px 26px 0;font-size:12.5px;color:#7A8087;}
+
+.rule{height:1px;background:#E3E5E7;margin:22px 26px 0;}
+
+.chips{display:flex;gap:22px;padding:16px 26px 0;}
+.chip{font-size:12.5px;color:#14171A;padding-bottom:2px;border-bottom:1px solid #14171A;}
+
+.thumbrow{display:flex;gap:10px;padding:20px 26px 0;}
+.thumb{width:52px;height:52px;flex-shrink:0;}
+.t1{background:linear-gradient(160deg,#A9AC9F,#5C5F52);}
+.t2{background:linear-gradient(160deg,#C4C6B8,#787A6A);}
+
+.actions{display:flex;gap:0;padding:26px 26px 0;position:absolute;bottom:34px;left:0;right:0;}
+.btn{flex:1;text-align:center;padding:16px 0;font-size:15px;font-weight:500;letter-spacing:.2px;}
+.btn.flash{background:#14171A;color:#fff;margin-right:1px;}
+.btn.redpoint{background:#fff;color:#14171A;border:1px solid #14171A;}
+
+.toast{position:absolute;top:80px;left:0;right:0;background:#EAF1F6;border-top:1px solid #2F5D82;border-bottom:1px solid #2F5D82;padding:11px 26px;font-size:12.5px;color:#14171A;display:flex;justify-content:space-between;align-items:center;z-index:3;}
+.toast b{font-weight:700;color:#2F5D82;}
+.toast .plus{font-size:11px;color:#2F5D82;border:1px solid #2F5D82;padding:1px 7px;}
+
+.home-indicator{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:130px;height:3px;background:#14171A;opacity:.5;}
+
+/* ---------- BROWSER ---------- */
+.browser{width:780px;background:#fff;box-shadow:0 30px 70px -24px rgba(0,0,0,.3);flex-shrink:0;}
+.chrome{background:#F7F8F9;padding:11px 16px;display:flex;align-items:center;gap:9px;border-bottom:1px solid #E3E5E7;}
+.dotr{width:9px;height:9px;border-radius:50%;background:#D8DADC;}
+.url{margin-left:10px;background:#fff;border:1px solid #E3E5E7;font-size:11.5px;color:#7A8087;padding:5px 12px;flex:1;}
+
+.appwin{display:flex;height:500px;}
+.leftpanel{width:360px;border-right:1px solid #E3E5E7;overflow:hidden;display:flex;flex-direction:column;}
+.areahead{padding:22px 26px 14px;}
+.areahead h1{font-size:24px;font-weight:300;margin:0;}
+.areahead p{margin:6px 0 0;font-size:12px;color:#7A8087;}
+.sector-label{font-size:11px;color:#7A8087;letter-spacing:.3px;padding:16px 26px 6px;border-top:1px solid #E3E5E7;}
+.routerow{display:flex;align-items:center;gap:12px;padding:9px 26px;}
+.rthumb{width:30px;height:30px;flex-shrink:0;}
+.rt1{background:linear-gradient(160deg,#A9AC9F,#5C5F52);}
+.rt2{background:linear-gradient(160deg,#C4C6B8,#787A6A);}
+.rt3{background:linear-gradient(150deg,#B7B9AC,#6A6C5D);}
+.rname{flex:1;font-size:13px;}
+.rgrade{font-size:11.5px;font-weight:700;border:1px solid #14171A;padding:2px 7px;}
+.rstatus{font-size:10.5px;color:#2F5D82;}
+
+.mappanel{flex:1;position:relative;background:#F7F8F9;}
+.mappanel::before{content:"";position:absolute;inset:24px;border:1px solid #E3E5E7;}
+.pin{position:absolute;width:8px;height:8px;border-radius:50%;background:#2F5D82;}
+.pinlabel{position:absolute;font-size:11px;color:#14171A;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="rationale">Nearly everything here is ink-on-white with one slate accent — the confidence of leaving things out. Thin rules replace boxes, outline chips replace pill-shaped tags, and the flash confirmation is a quiet banner, not a bubble, because restraint is the personality.</div>
+<div class="stage">
+
+  <div class="phone">
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="statusbar"><span>14:32</span><span>5G 84%</span></div>
+      <div class="toast"><span><b>Flashed</b> 5 routes at 6a+</span><span class="plus">+1</span></div>
+      <div class="appbar">Céüse · Berger</div>
+      <div class="hero"></div>
+      <div class="titleblock">
+        <div class="gradeline"><span class="grade">6a+</span></div>
+        <div class="name">Fissure du Matin</div>
+      </div>
+      <div class="meta">22m, 9 bolts — sustained bulge into a technical exit past the roof.</div>
+      <div class="rule"></div>
+      <div class="chips"><span class="chip">overhang</span><span class="chip">crimpy</span></div>
+      <div class="thumbrow"><div class="thumb t1"></div><div class="thumb t2"></div></div>
+      <div class="actions">
+        <div class="btn flash">Flash</div>
+        <div class="btn redpoint">Redpoint</div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div class="chrome">
+      <span class="dotr"></span><span class="dotr"></span><span class="dotr"></span>
+      <div class="url">climbing-logbook.home/areas/ceuse</div>
+    </div>
+    <div class="appwin">
+      <div class="leftpanel">
+        <div class="areahead"><h1>Céüse</h1><p>3 sectors, 42 routes</p></div>
+
+        <div class="sector-label">Biographie</div>
+        <div class="routerow"><div class="rthumb rt1"></div><div class="rname">Biographie</div><span class="rgrade">8a</span></div>
+
+        <div class="sector-label">Face Nord</div>
+        <div class="routerow"><div class="rthumb rt2"></div><div class="rname">La Ravivée</div><span class="rgrade">7c+</span></div>
+        <div class="routerow"><div class="rthumb rt3"></div><div class="rname">Voie des Chèvres</div><span class="rgrade">5c</span></div>
+
+        <div class="sector-label">Berger</div>
+        <div class="routerow"><div class="rthumb rt1"></div><div class="rname">Le Toit du Berger</div><span class="rgrade">7b</span><span class="rstatus">project</span></div>
+        <div class="routerow"><div class="rthumb rt2"></div><div class="rname">Dalle Fantôme</div><span class="rgrade">6c</span></div>
+        <div class="routerow"><div class="rthumb rt3"></div><div class="rname">Fissure du Matin</div><span class="rgrade">6a+</span><span class="rstatus">flashed</span></div>
+      </div>
+      <div class="mappanel">
+        <div class="pin" style="top:70px;left:130px;"></div>
+        <div class="pinlabel" style="top:82px;left:142px;">Berger</div>
+        <div class="pin" style="top:160px;left:250px;"></div>
+        <div class="pinlabel" style="top:172px;left:262px;">Biographie</div>
+        <div class="pin" style="top:270px;left:100px;"></div>
+        <div class="pinlabel" style="top:282px;left:112px;">Face Nord</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
