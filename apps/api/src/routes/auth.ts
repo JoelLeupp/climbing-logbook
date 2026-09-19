@@ -137,4 +137,28 @@ auth.get("/me", (c) => {
   return c.json({ id: user.id, email: user.email, name: user.name });
 });
 
+// Gated on NODE_ENV (AD-10) - the exact same check `setSessionCookie` above already uses for the
+// cookie's `secure` flag, no new env var. In production this route is never registered at all, so
+// a request to it is a plain 404, not a runtime-rejected 403/503.
+if (process.env.NODE_ENV !== "production") {
+  // Picks from the fixed set of named test users `packages/db/src/seed.ts` bootstraps into "Dev
+  // Group" - defaults to the first of them when no email is given.
+  const DEFAULT_DEV_LOGIN_EMAIL = "alice@dev.local";
+
+  auth.post("/dev-login", async (c) => {
+    const body = await c.req.json().catch(() => ({}));
+    const requestedEmail = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const email = requestedEmail || DEFAULT_DEV_LOGIN_EMAIL;
+
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    if (!user) {
+      return sendProblem(c, { status: 400, detail: `No seeded test user found for email "${email}"` });
+    }
+
+    const { token, expiresAt } = await createSession(user.id);
+    setSessionCookie(c, token, expiresAt);
+    return c.json({ id: user.id, email: user.email, name: user.name });
+  });
+}
+
 export { auth };

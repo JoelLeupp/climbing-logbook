@@ -2,6 +2,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { apiPost, ApiError } from '$lib/api.js';
+	import { session } from '$lib/session.svelte.js';
 	import { RegisterResponse as RegisterResponseSchema } from '@climbing-logbook/contracts';
 	import type { z } from 'zod';
 
@@ -34,6 +35,9 @@
 				// group", not "look up a group with an empty invite code".
 				...(inviteCode.trim() ? { inviteCode: inviteCode.trim() } : {})
 			});
+			// Registration also sets a real session cookie server-side - mirror login's approach so
+			// the shared session store reflects it immediately, without waiting for a page reload.
+			session.user = registeredUser;
 		} catch (err) {
 			// Entered values are intentionally left untouched here so the user doesn't have to
 			// retype anything after a failed submission.

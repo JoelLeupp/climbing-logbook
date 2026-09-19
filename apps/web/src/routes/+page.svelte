@@ -3,6 +3,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { apiFetch } from '$lib/api.js';
+	import { session, logout } from '$lib/session.svelte.js';
 
 	type HealthState = 'loading' | 'healthy' | 'unreachable';
 
@@ -56,5 +57,26 @@
 		<Card.Footer>
 			<Button variant="outline" size="sm" onclick={checkHealth}>Recheck</Button>
 		</Card.Footer>
+	</Card.Root>
+
+	<Card.Root class="w-full">
+		<Card.Header>
+			<Card.Title>Session</Card.Title>
+		</Card.Header>
+		<Card.Content aria-live="polite">
+			{#if session.user}
+				<p class="text-sm">Logged in as {session.user.name}</p>
+			{:else}
+				<div class="flex gap-3 text-sm">
+					<a href="/login" class="underline underline-offset-4">Log in</a>
+					<a href="/register" class="underline underline-offset-4">Register</a>
+				</div>
+			{/if}
+		</Card.Content>
+		{#if session.user}
+			<Card.Footer>
+				<Button variant="outline" size="sm" onclick={logout}>Log out</Button>
+			</Card.Footer>
+		{/if}
 	</Card.Root>
 </main>
