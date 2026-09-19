@@ -3,6 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { db, logEntries, logStatusValues } from "@climbing-logbook/db";
 import type { AppEnv } from "../context.js";
 import { requireAuth } from "../middleware/auth.js";
+import { sendProblem } from "../lib/problem-details.js";
 
 const logs = new Hono<AppEnv>();
 
@@ -24,7 +25,10 @@ logs.get("/", async (c) => {
 logs.post("/", requireAuth, async (c) => {
   const body = await c.req.json();
   if (!body.climbId || !logStatusValues.includes(body.status)) {
-    return c.json({ error: `climbId and status (one of ${logStatusValues.join(", ")}) are required` }, 400);
+    return sendProblem(c, {
+      status: 400,
+      detail: `climbId and status (one of ${logStatusValues.join(", ")}) are required`,
+    });
   }
 
   const [entry] = await db
@@ -55,7 +59,7 @@ logs.patch("/:id", requireAuth, async (c) => {
     .where(and(eq(logEntries.id, c.req.param("id")), eq(logEntries.userId, c.get("user")!.id)))
     .returning();
 
-  if (!entry) return c.json({ error: "Log entry not found" }, 404);
+  if (!entry) return sendProblem(c, { status: 404, detail: "Log entry not found" });
   return c.json(entry);
 });
 
@@ -65,7 +69,7 @@ logs.delete("/:id", requireAuth, async (c) => {
     .where(and(eq(logEntries.id, c.req.param("id")), eq(logEntries.userId, c.get("user")!.id)))
     .returning();
 
-  if (!entry) return c.json({ error: "Log entry not found" }, 404);
+  if (!entry) return sendProblem(c, { status: 404, detail: "Log entry not found" });
   return c.body(null, 204);
 });
 
