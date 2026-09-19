@@ -18,6 +18,28 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// A group is a small, fixed set of users sharing one climbing logbook (roughly 1-10 users per
+// instance). `inviteCode` is crypto-random (see apps/api/src/lib/session.ts's `randomBytes`
+// pattern) and unique - it's the only way to join an existing group. One-group-per-user for v1
+// is enforced at the app layer only (see apps/api/src/routes/auth.ts), not a DB constraint here,
+// so lifting it later is an app-code change, not a migration.
+export const groups = pgTable("groups", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  inviteCode: text("invite_code").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const groupMemberships = pgTable(
+  "group_memberships",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    groupId: uuid("group_id").notNull().references(() => groups.id, { onDelete: "cascade" }),
+    joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.groupId] })],
+);
+
 // Session id stored is a SHA-256 hash of the token in the cookie, so a leaked
 // DB row can't be replayed as a session by itself.
 export const sessions = pgTable("sessions", {

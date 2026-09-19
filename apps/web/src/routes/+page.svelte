@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { apiFetch } from '$lib/api.js';
 
 	type HealthState = 'loading' | 'healthy' | 'unreachable';
 
@@ -13,20 +14,19 @@
 	// never overwrite a newer one.
 	let latestRequestId = 0;
 
-	// Same-origin call: Vite's dev-server proxy forwards /health to apps/api
-	// (see vite.config.ts) so there's never a cross-origin request here.
+	// Goes through the one shared API client (lib/api.ts, AD-8) like every other apps/api call -
+	// same-origin via Vite's dev-server proxy (see vite.config.ts), never a direct fetch here.
 	async function checkHealth() {
 		const requestId = ++latestRequestId;
 		state = 'loading';
 		try {
-			const response = await fetch('/health');
+			await apiFetch<{ ok: boolean }>('/health');
 			if (requestId === latestRequestId) {
-				state = response.ok ? 'healthy' : 'unreachable';
+				state = 'healthy';
 			}
 		} catch {
-			// Fetch failure (API down, network error, etc.) - render the
-			// unreachable state instead of letting this throw or leaving a
-			// blank page.
+			// Any failure (API down, non-ok response, network error) - render the unreachable
+			// state instead of letting this throw or leaving a blank page.
 			if (requestId === latestRequestId) {
 				state = 'unreachable';
 			}
